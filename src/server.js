@@ -52,7 +52,7 @@ app.post('/create-order', async (req, res) => {
         paymentInstrument: {
             type: 'PAY_PAGE'
         }
-    }
+    } 
 
     const payload = Buffer.from(JSON.stringify(paymentPayload)).toString('base64')
     const keyIndex = 1

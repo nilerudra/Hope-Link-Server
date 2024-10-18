@@ -10,5 +10,5 @@ const User = require("../models/users");
     res.json(users);  // Send JSON data
   });
 
-  
+   
 module.exports = router;

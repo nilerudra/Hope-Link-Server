@@ -8,5 +8,5 @@ const ngoDetails=new Schema({
 
 
 const NgoDetails = mongoose.model("ngodetails", ngoSchema);
-
+ 
 module.exports = NgoDetails;
