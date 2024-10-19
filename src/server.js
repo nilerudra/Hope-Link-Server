@@ -6,6 +6,7 @@ const protectedRoute = require("./routes/protected");
 const signupRoute = require("./routes/signup");
 const loginRoute = require("./routes/login");
 const exploreRoute=require("./routes/explore")
+const ngoRoute=require("./routes/ngodetail");
 const DB_connection = require("./config/mongoConn");
 const axios =require("axios");
 const { v4: uuidv4 } = require('uuid');

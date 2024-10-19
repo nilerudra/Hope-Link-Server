@@ -1,11 +1,11 @@
 const express = require("express");
 const router = express.Router();
-const User = require("../models/users");
+const Ngo = require("../models/ngodetails");
 
 
 
   router.get('/', async(req, res) => {
-    const users = await User.find({role:"ngo"});
+    const users = await Ngo.find({typeOfNGO:"Water"});
     console.log(users);
     res.json(users);  // Send JSON data
   });
