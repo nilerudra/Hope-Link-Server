@@ -6,12 +6,16 @@ const protectedRoute = require("./routes/protected");
 const signupRoute = require("./routes/signup");
 const loginRoute = require("./routes/login");
 const exploreRoute = require("./routes/explore");
+const ngoRoute = require("./routes/ngodetail");
 const DB_connection = require("./config/mongoConn");
 const messagesRoute = require("./routes/messages");
+const donarRoute = require("./routes/topDonar");
 const registerNgo = require("./routes/ngo");
 const axios = require("axios");
 const { v4: uuidv4 } = require("uuid");
 const crypto = require("crypto");
+const Donar = require("../src/models/donar");
+const postRoute = require("./routes/postRoute");
 
 const http = require("http");
 const socketIo = require("socket.io");
@@ -58,13 +62,18 @@ const MERCHANT_BASE_URL =
 const MERCHANT_STATUS_URL =
   "https://api-preprod.phonepe.com/apis/pg-sandbox/pg/v1/status";
 
-const redirectUrl = "http://localhost:8000/status";
+const redirectUrl = "http://localhost:3000/status";
 
-const successUrl = "http://localhost:3000/payment-success";
-const failureUrl = "http://localhost:3000/payment-failure";
+const successUrl = "http://localhost:3001/payment-success";
+const failureUrl = "http://localhost:3001/payment-failure";
+const data = { name: "", mobileNumber: "", amount: "", email: "" };
 
 app.post("/create-order", async (req, res) => {
-  const { name, mobileNumber, amount } = req.body;
+  const { name, mobileNumber, amount, email } = req.body;
+  data.name = name;
+  data.mobileNumber = mobileNumber;
+  data.amount = amount;
+  data.email = email;
   const orderId = uuidv4();
 
   //payment
@@ -136,6 +145,19 @@ app.post("/status", async (req, res) => {
 
   axios.request(option).then((response) => {
     if (response.data.success === true) {
+      //call here middle ware to add donar
+      console.log(data.name);
+      const donar = new Donar(data);
+      donar
+        .save()
+        .then(() => {
+          console.log("Donar Data Saved");
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+
+      // app.use("/donar",donarRoute);
       return res.redirect(successUrl);
     } else {
       return res.redirect(failureUrl);
@@ -151,6 +173,9 @@ app.use("/signup", signupRoute);
 app.use("/login", loginRoute);
 app.use("/explore", exploreRoute);
 app.use("/messages", messagesRoute);
+app.use("/register-ngo", ngoRoute);
+app.use("/profile", donarRoute);
+app.use("/posts", postRoute);
 app.use("/ngo", registerNgo);
 
 // Start the server
