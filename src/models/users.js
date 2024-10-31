@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
-const userSchema = new Schema({
+const volunteerSchema = new Schema({
   username: {
     type: String,
     required: true,
@@ -20,18 +20,12 @@ const userSchema = new Schema({
     required: true,
     minlength: 8,
   },
-  role: {
-    type: String,
-    required: true,
-    enum: ["NGO", "Volunteer"],
-  },
   createdAt: {
     type: Date,
     default: Date.now,
   },
 });
 
-const User = mongoose.model("User", userSchema);
+const Volunteer = mongoose.model("User", volunteerSchema);
 
-module.exports = User;
- 
+module.exports = Volunteer;

@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const User = require("../models/users");
+const Volunteer = require("../models/users");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 
@@ -8,7 +8,7 @@ router.post("/", async (req, res) => {
   const { email, password } = req.body;
 
   try {
-    const user = await User.findOne({ email });
+    const user = await Volunteer.findOne({ email });
     if (!user) {
       return res.status(400).json({ message: "Invalid email or password" });
     }
@@ -18,11 +18,9 @@ router.post("/", async (req, res) => {
       return res.status(400).json({ message: "Invalid email or password" });
     }
 
-    const token = jwt.sign(
-      { userId: user._id, role: user.role },
-      "your_jwt_secret",
-      { expiresIn: "1h" }
-    );
+    const token = jwt.sign({ userId: user._id }, "your_jwt_secret", {
+      expiresIn: "1h",
+    });
 
     res.json({
       token,
@@ -37,7 +35,7 @@ router.post("/", async (req, res) => {
 
 router.get("/getallusers", async (req, res) => {
   try {
-    const users = await User.find();
+    const users = await Volunteer.find();
     res.json(users);
   } catch (err) {
     console.error(err);

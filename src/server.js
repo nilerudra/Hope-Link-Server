@@ -8,6 +8,7 @@ const loginRoute = require("./routes/login");
 const exploreRoute = require("./routes/explore");
 const DB_connection = require("./config/mongoConn");
 const messagesRoute = require("./routes/messages");
+const registerNgo = require("./routes/ngo");
 const axios = require("axios");
 const { v4: uuidv4 } = require("uuid");
 const crypto = require("crypto");
@@ -150,6 +151,7 @@ app.use("/signup", signupRoute);
 app.use("/login", loginRoute);
 app.use("/explore", exploreRoute);
 app.use("/messages", messagesRoute);
+app.use("/ngo", registerNgo);
 
 // Start the server
 server.listen(PORT, () => {
