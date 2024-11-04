@@ -3,6 +3,7 @@ const router = express.Router();
 const Ngo = require("../models/ngo");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
+const JoinRequest = require("../models/joinRequest");
 
 router.post("/sign-up", async (req, res) => {
   const {
@@ -107,6 +108,42 @@ router.get("/get-all-ngo", async (req, res) => {
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: "Server error" });
+  }
+});
+
+// Join Request
+router.post("/join", async (req, res) => {
+  const { userId, ngoId } = req.body;
+
+  try {
+    // Find an existing request for this user and NGO
+    let existingRequest = await JoinRequest.findOne({ userId, ngoId });
+
+    if (existingRequest) {
+      // Toggle status between 'Pending' and 'Withdrawn'
+      existingRequest.status =
+        existingRequest.status === "Pending" ? "Withdrawn" : "Pending";
+      await existingRequest.save();
+
+      const message =
+        existingRequest.status === "Pending"
+          ? "Join request reactivated"
+          : "Join request withdrawn";
+
+      return res.json({ message, request: existingRequest });
+    }
+
+    // Create a new join request if none exists
+    const newRequest = new JoinRequest({ userId, ngoId });
+    await newRequest.save();
+
+    res.json({
+      message: "Join request sent successfully",
+      request: newRequest,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Failed to process join request" });
   }
 });
 
