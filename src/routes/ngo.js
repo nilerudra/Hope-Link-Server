@@ -147,4 +147,17 @@ router.post("/join", async (req, res) => {
   }
 });
 
+router.get("/get-users-requests/:userId", async (req, res) => {
+  const { userId } = req.params;
+  console.log(userId);
+
+  try {
+    const joinRequests = await JoinRequest.find({ userId });
+    console.log(joinRequests);
+    res.json(joinRequests);
+  } catch (error) {
+    res.status(500).json({ error: "Failed to fetch join requests" });
+  }
+});
+
 module.exports = router;
