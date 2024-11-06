@@ -1,12 +1,12 @@
 const express = require("express");
 const bcrypt = require("bcrypt");
-const User = require("../models/users");
+const Volunteer = require("../models/users");
 const router = express.Router();
 
 router.post("/", async (req, res) => {
-  const { username, email, password, confirmPassword, role } = req.body;
+  const { username, email, password, confirmPassword } = req.body;
 
-  if (!username || !email || !password || !confirmPassword || !role) {
+  if (!username || !email || !password || !confirmPassword) {
     return res.status(400).json({ message: "All fields are required" });
   }
 
@@ -23,14 +23,14 @@ router.post("/", async (req, res) => {
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
 
-    const newUser = new User({
+    const newVolunteer = new Volunteer({
       username,
       email,
       password: hashedPassword,
       role,
     });
 
-    await newUser.save();
+    await newVolunteer.save();
 
     res.status(201).json({ message: "User registered successfully" });
   } catch (error) {
