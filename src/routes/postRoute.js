@@ -9,7 +9,8 @@ router.post('/', async (req, res) => {
       const data={
      postTitle,
       postImg,
-      postTags
+      postTags,
+      userId
         
       } = req.body;
       console.log(data)
@@ -18,7 +19,8 @@ router.post('/', async (req, res) => {
       const newPost = new Posts({
         postTitle,
         postImg,
-        postTags
+        postTags,
+        userId
       });
   
       
