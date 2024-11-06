@@ -10,6 +10,7 @@ const ngoRoute=require("./routes/ngodetail");
 const DB_connection = require("./config/mongoConn");
 const messagesRoute = require("./routes/messages");
 const donarRoute=require("./routes/topDonar");
+const feedRouter =require("./routes/feed")
 const axios = require("axios");
 const { v4: uuidv4 } = require("uuid");
 const crypto = require("crypto");
@@ -178,6 +179,7 @@ app.use("/messages", messagesRoute);
 app.use("/register-ngo",ngoRoute);
 app.use("/profile",donarRoute);
 app.use("/posts",postRoute);
+app.use("/feed",feedRouter);
 // Start the server
 server.listen(PORT, () => {
   console.log(`Server is running at http://localhost:${PORT}`);
