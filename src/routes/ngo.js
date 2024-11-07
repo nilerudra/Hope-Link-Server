@@ -1,9 +1,11 @@
 const express = require("express");
 const router = express.Router();
 const Ngo = require("../models/ngo");
+const User = require("../models/users");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 const JoinRequest = require("../models/joinRequest");
+const Notification = require("../models/notification");
 
 router.post("/sign-up", async (req, res) => {
   const {
@@ -115,6 +117,7 @@ router.get("/get-all-ngo", async (req, res) => {
 router.post("/join", async (req, res) => {
   const { userId, ngoId } = req.body;
 
+  const user = await User.findById(userId);
   try {
     // Find an existing request for this user and NGO
     let existingRequest = await JoinRequest.findOne({ userId, ngoId });
@@ -127,8 +130,18 @@ router.post("/join", async (req, res) => {
 
       const message =
         existingRequest.status === "Pending"
-          ? "Join request reactivated"
-          : "Join request withdrawn";
+          ? `${user.username} reactivated join request`
+          : `${user.username} withdrawn join request`;
+
+      // Create a notification for the NGO about the status change
+      const notificationMessage = `${message} for your NGO.`;
+      const notification = new Notification({
+        id: ngoId,
+        userName: user.username,
+        message: notificationMessage,
+      });
+
+      await notification.save();
 
       return res.json({ message, request: existingRequest });
     }
@@ -136,6 +149,17 @@ router.post("/join", async (req, res) => {
     // Create a new join request if none exists
     const newRequest = new JoinRequest({ userId, ngoId });
     await newRequest.save();
+
+    // Create a notification for the NGO
+    const notificationMessage = `${user.username} has requested to join your NGO.`;
+
+    const notification = new Notification({
+      id: ngoId,
+      userName: user.username,
+      message: notificationMessage,
+    });
+
+    await notification.save();
 
     res.json({
       message: "Join request sent successfully",
@@ -149,11 +173,9 @@ router.post("/join", async (req, res) => {
 
 router.get("/get-users-requests/:userId", async (req, res) => {
   const { userId } = req.params;
-  console.log(userId);
 
   try {
     const joinRequests = await JoinRequest.find({ userId });
-    console.log(joinRequests);
     res.json(joinRequests);
   } catch (error) {
     res.status(500).json({ error: "Failed to fetch join requests" });

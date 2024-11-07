@@ -10,12 +10,13 @@ const DB_connection = require("./config/mongoConn");
 const messagesRoute = require("./routes/messages");
 const donarRoute = require("./routes/topDonar");
 const registerNgo = require("./routes/ngo");
-const feedRouter =require("./routes/feed")
+const feedRouter = require("./routes/feed");
 const axios = require("axios");
 const { v4: uuidv4 } = require("uuid");
 const crypto = require("crypto");
 const Donar = require("../src/models/donar");
 const postRoute = require("./routes/postRoute");
+const notificationRoute = require("./routes/notifications");
 
 const http = require("http");
 const socketIo = require("socket.io");
@@ -177,7 +178,8 @@ app.use("/messages", messagesRoute);
 app.use("/profile", donarRoute);
 app.use("/posts", postRoute);
 app.use("/ngo", registerNgo);
-app.use("/feed",feedRouter);
+app.use("/feed", feedRouter);
+app.use("/notification", notificationRoute);
 
 // Start the server
 server.listen(PORT, () => {
