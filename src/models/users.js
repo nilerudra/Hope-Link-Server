@@ -20,6 +20,12 @@ const volunteerSchema = new Schema({
     required: true,
     minlength: 8,
   },
+  connectedNgo: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "ngo",
+    },
+  ],
   createdAt: {
     type: Date,
     default: Date.now,
