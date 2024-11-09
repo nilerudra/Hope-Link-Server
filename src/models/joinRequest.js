@@ -14,7 +14,7 @@ const JoinRequestSchema = new mongoose.Schema({
   },
   status: {
     type: String,
-    enum: ["Pending", "Withdrawn"],
+    enum: ["Pending", "Withdrawn", "Accepted"],
     default: "Pending",
   },
   createdAt: {
