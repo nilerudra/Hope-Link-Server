@@ -21,7 +21,13 @@ const donorSchema = new mongoose.Schema({
     required: true,
     trim: true,
     lowercase: true
-  }
+  },
+  userId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "users" ,
+    required: true,
+  },
+  
 });
 
 const Donor = mongoose.model('Donor', donorSchema);

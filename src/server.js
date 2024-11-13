@@ -17,6 +17,7 @@ const crypto = require("crypto");
 const Donar = require("../src/models/donar");
 const postRoute = require("./routes/postRoute");
 const notificationRoute = require("./routes/notifications");
+const taskRouter=require("./routes/task");
 
 const http = require("http");
 const socketIo = require("socket.io");
@@ -67,14 +68,16 @@ const redirectUrl = "http://localhost:3000/status";
 
 const successUrl = "http://localhost:3001/payment-success";
 const failureUrl = "http://localhost:3001/payment-failure";
-const data = { name: "", mobileNumber: "", amount: "", email: "" };
+const data = { name: "", mobileNumber: "", amount: "", email: "" ,userId:""};
 
 app.post("/create-order", async (req, res) => {
-  const { name, mobileNumber, amount, email } = req.body;
+  
+    const { name, mobileNumber, amount, email ,userId} = req.body;
   data.name = name;
   data.mobileNumber = mobileNumber;
   data.amount = amount;
   data.email = email;
+  data.userId=userId;
   const orderId = uuidv4();
 
   //payment
@@ -180,6 +183,7 @@ app.use("/posts", postRoute);
 app.use("/ngo", registerNgo);
 app.use("/feed", feedRouter);
 app.use("/notification", notificationRoute);
+app.use("/assign-task",taskRouter)
 
 // Start the server
 server.listen(PORT, () => {
