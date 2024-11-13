@@ -16,6 +16,10 @@ const postSchema = new mongoose.Schema({
     required: true,
     trim: true,
   },
+  createdAt: {
+    type: Date,
+    default: Date.now // Default to the current time when the document is created
+  },
   userId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "users" || "ngo",
