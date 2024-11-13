@@ -61,7 +61,7 @@ const NgoSchema = new mongoose.Schema({
   volunteers: [
     {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "users",
+      ref: "User",
     },
   ],
   createdAt: {

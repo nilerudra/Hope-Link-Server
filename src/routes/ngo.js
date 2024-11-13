@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const Ngo = require("../models/ngo");
 const User = require("../models/users");
+const Post = require("../models/posts");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 const JoinRequest = require("../models/joinRequest");
@@ -210,7 +211,6 @@ router.post("/:ngoId/accept-volunteer", async (req, res) => {
   try {
     const ngoId = req.params.ngoId;
     const { requestId } = req.body;
-    console.log(requestId);
 
     // Find the NGO to ensure it exists
     const ngo = await Ngo.findById(ngoId);
@@ -233,27 +233,31 @@ router.post("/:ngoId/accept-volunteer", async (req, res) => {
     request.status = "Accepted";
     await request.save();
 
-    // Now update the user document to store the NGO's ID
+    // Update the user document to store the NGO's ID
     const user = await User.findById(request.userId);
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
 
-    // Add the NGO ID to the 'joinedNgos' array in the user document
     if (!user.connectedNgo.includes(ngoId)) {
       user.connectedNgo.push(ngoId); // Only add if not already in the list
       await user.save();
     }
 
-    // Create a notification for the NGO
-    const notificationMessage = `${ngo.ngoName} has  accepted your request.`;
+    // Add user ID to NGO's volunteers array if not already present
+    if (!ngo.volunteers.includes(request.userId.toString())) {
+      ngo.volunteers.push(request.userId); // Push user ID
+      await ngo.save();
+    } else {
+      console.log("User already in volunteers array");
+    }
 
+    // Create a notification for the user
     const notification = new Notification({
       id: request.userId,
       userName: ngo.ngoName,
-      message: notificationMessage,
+      message: `${ngo.ngoName} has accepted your request.`,
     });
-
     await notification.save();
 
     // Respond with the updated request
@@ -375,6 +379,33 @@ router.get("/:userId/connected-ngo-details", async (req, res) => {
     res.status(200).json({ connectedNgos: ngoDetails });
   } catch (error) {
     console.error("Error fetching connected NGOs:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+// Route to fetch all posts of volunteers associated with a specific NGO
+router.get("/:ngoId/volunteers/posts", async (req, res) => {
+  console.log("hiii");
+  try {
+    const { ngoId } = req.params;
+
+    // Find the NGO and populate the volunteers field
+    const ngo = await Ngo.findById(ngoId).populate("volunteers");
+
+    if (!ngo) {
+      return res.status(404).json({ message: "NGO not found" });
+    }
+
+    // Get the list of volunteer IDs associated with the NGO
+    const volunteerIds = ngo.volunteers.map((volunteer) => volunteer);
+
+    // Find all posts by these volunteers
+    const posts = await Post.find({ userId: { $in: volunteerIds } });
+
+    console.log("post" + posts);
+    res.status(200).json({ post: posts });
+  } catch (error) {
+    console.error(error);
     res.status(500).json({ message: "Server error" });
   }
 });

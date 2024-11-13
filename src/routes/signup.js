@@ -15,7 +15,7 @@ router.post("/", async (req, res) => {
   }
 
   try {
-    const existingUser = await User.findOne({ email });
+    const existingUser = await Volunteer.findOne({ email });
     if (existingUser) {
       return res.status(400).json({ message: "Email already registered" });
     }
@@ -27,7 +27,6 @@ router.post("/", async (req, res) => {
       username,
       email,
       password: hashedPassword,
-      role,
     });
 
     await newVolunteer.save();
