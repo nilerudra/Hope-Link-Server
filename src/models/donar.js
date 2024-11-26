@@ -24,10 +24,16 @@ const donorSchema = new mongoose.Schema({
   },
   userId: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "users" ,
-    required: true,
+    ref: "users",
+    required: true
   },
-  
+  ngoIds: [
+    {
+      required:true,
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "ngo", 
+    }
+  ]
 });
 
 const Donor = mongoose.model('Donor', donorSchema);

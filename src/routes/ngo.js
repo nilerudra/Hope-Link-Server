@@ -7,6 +7,8 @@ const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 const JoinRequest = require("../models/joinRequest");
 const Notification = require("../models/notification");
+const mongoose =require("mongoose")
+const Donor=require("../models/donar")
 
 router.post("/sign-up", async (req, res) => {
   const {
@@ -385,7 +387,7 @@ router.get("/:userId/connected-ngo-details", async (req, res) => {
 
 // Route to fetch all posts of volunteers associated with a specific NGO
 router.get("/:ngoId/volunteers/posts", async (req, res) => {
-  console.log("hiii");
+ 
   try {
     const { ngoId } = req.params;
 
@@ -402,12 +404,90 @@ router.get("/:ngoId/volunteers/posts", async (req, res) => {
     // Find all posts by these volunteers
     const posts = await Post.find({ userId: { $in: volunteerIds } });
 
-    console.log("post" + posts);
+    
     res.status(200).json({ post: posts });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Server error" });
   }
+});
+
+
+
+
+// Route to get donations per NGO
+router.get("/:ngoId/ngodonations", async (req, res) => {
+  try {
+    const { ngoId } = req.params;
+  
+    // Ensure ngoId is treated as an ObjectId in the aggregation
+    const objectId = new mongoose.Types.ObjectId(ngoId);
+  
+    // Aggregate donations for the specified NGO
+    const donations = await Donor.aggregate([
+      { $match: { ngoIds: objectId } }, // Match donations for this NGO
+      { $unwind: "$ngoIds" }, // Unwind the ngoIds array
+      { $match: { ngoIds: objectId } }, // Match again after unwind
+      {
+        $group: {
+          _id: "$ngoIds", // Group by ngoId
+          totalDonations: { $sum: "$amount" }, // Sum the donations
+          donors: {
+            $push: {
+              name: "$name",
+              email: "$email",
+              mobileNumber: "$mobileNumber",
+              amount: "$amount",
+            }, // Collect donor details
+          },
+        },
+      },
+      {
+        $lookup: {
+          from: "ngos", // Look up the NGO details
+          localField: "_id",
+          foreignField: "_id",
+          as: "ngoDetails",
+        },
+      },
+      { $unwind: "$ngoDetails" }, // Unwind the NGO details
+      {
+        $project: {
+          _id: 0,
+          ngoId: "$_id",
+          ngoName: "$ngoDetails.ngoName",
+          totalDonations: 1,
+          donors: 1,
+        },
+      },
+    ]);
+  
+    if (!donations || donations.length === 0) {
+      return res.status(404).json({ message: "No donations found for this NGO." });
+    }
+  
+    // Format the response data as needed for the frontend
+    const formattedDonations = donations.map((donationGroup) => {
+      return {
+        ngoId: donationGroup.ngoId,
+        ngoName: donationGroup.ngoName,
+        totalDonations: donationGroup.totalDonations,
+        donors: donationGroup.donors.map((donor) => ({
+          name: donor.name,
+          email: donor.email,
+          mobileNumber: donor.mobileNumber,
+          amount: donor.amount,
+        })),
+      };
+    });
+  
+    // Send the formatted data to the frontend
+    res.json(formattedDonations);
+  } catch (err) {
+    console.error("Error retrieving donations:", err);
+    res.status(500).json({ message: "Error retrieving donations." });
+  }
+  
 });
 
 module.exports = router;

@@ -8,7 +8,7 @@ const loginRoute = require("./routes/login");
 const exploreRoute = require("./routes/explore");
 const DB_connection = require("./config/mongoConn");
 const messagesRoute = require("./routes/messages");
-const donarRoute = require("./routes/topDonar");
+// const donarRoute = require("./routes/topDonar");
 const registerNgo = require("./routes/ngo");
 const feedRouter = require("./routes/feed");
 const axios = require("axios");
@@ -66,18 +66,19 @@ const MERCHANT_STATUS_URL =
 
 const redirectUrl = "http://localhost:3000/status";
 
-const successUrl = "http://localhost:3001/payment-success";
+const successUrl = "http://localhost:3001/dashboard/explore";
 const failureUrl = "http://localhost:3001/payment-failure";
-const data = { name: "", mobileNumber: "", amount: "", email: "" ,userId:""};
+const data = { name: "", mobileNumber: "", amount: "", email: "" ,userId:"",ngoIds:[]};
 
 app.post("/create-order", async (req, res) => {
   
-    const { name, mobileNumber, amount, email ,userId} = req.body;
+    const { name, mobileNumber, amount, email ,userId,ngoIds} = req.body;
   data.name = name;
   data.mobileNumber = mobileNumber;
   data.amount = amount;
   data.email = email;
   data.userId=userId;
+  data.ngoIds=ngoIds;
   const orderId = uuidv4();
 
   //payment
@@ -150,7 +151,7 @@ app.post("/status", async (req, res) => {
   axios.request(option).then((response) => {
     if (response.data.success === true) {
       //call here middle ware to add donar
-      console.log(data.name);
+      console.log(data.amount);
       const donar = new Donar(data);
       donar
         .save()
@@ -178,7 +179,7 @@ app.use("/login", loginRoute);
 app.use("/explore", exploreRoute);
 app.use("/messages", messagesRoute);
 // app.use("/register-ngo", ngoRoute);
-app.use("/profile", donarRoute);
+// app.use("/profile", donarRoute);
 app.use("/posts", postRoute);
 app.use("/ngo", registerNgo);
 app.use("/feed", feedRouter);

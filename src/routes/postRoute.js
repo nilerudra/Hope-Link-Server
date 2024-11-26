@@ -13,7 +13,7 @@ router.post('/', async (req, res) => {
       userId
         
       } = req.body;
-      console.log(data)
+      // console.log(data)
   
       // Create a new NGO instance
       const newPost = new Posts({

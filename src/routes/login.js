@@ -4,6 +4,13 @@ const Volunteer = require("../models/users");
 const Post = require("../models/posts");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
+const Donation = require("../models/donar");
+const mongoose = require('mongoose');
+const Donar = require("../models/donar");
+
+// Get total donations by a volunteer
+
+
 
 router.post("/", async (req, res) => {
   const { email, password } = req.body;
@@ -80,5 +87,26 @@ router.get("/:userId/connected-ngos/count", async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 });
+
+router.get("/profile/:id/donation", async (req, res) => {
+  try {
+    const userId = req.params.id;
+
+    // Aggregate donations for the volunteer
+    const totalDonations = await Donar.aggregate([
+      { $match: { userId: new mongoose.Types.ObjectId(userId) } }, 
+      { $group: { _id: null, totalAmount: { $sum: "$amount" } } },
+    ]);
+
+    // If no donations found, return 0
+    const totalAmount = totalDonations.length > 0 ? totalDonations[0].totalAmount : 0;
+
+    res.status(200).json({ totalAmount });
+  } catch (error) {
+    console.error("Error fetching total donations:", error);
+    res.status(500).json({ message: "Error fetching total donations" });
+  }
+});
+
 
 module.exports = router;
