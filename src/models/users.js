@@ -23,7 +23,7 @@ const volunteerSchema = new Schema({
   connectedNgo: [
     {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "ngo",
+      ref: "Ngo",
     },
   ],
   createdAt: {
