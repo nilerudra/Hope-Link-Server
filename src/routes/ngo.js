@@ -490,4 +490,22 @@ router.get("/:ngoId/ngodonations", async (req, res) => {
   
 });
 
+
+router.get("/:ngoId/volunteers", async (req, res) => {
+  try {
+    const { ngoId } = req.params;
+
+    // Find the NGO and populate volunteers
+    const ngo = await Ngo.findById(ngoId).populate("volunteers", "username email ");
+    if (!ngo) {
+      return res.status(404).json({ message: "NGO not found" });
+    }
+
+    res.json(ngo.volunteers);
+  } catch (err) {
+    console.error("Error fetching volunteers:", err);
+    res.status(500).json({ message: "Error fetching volunteers" });
+  }
+});
+
 module.exports = router;

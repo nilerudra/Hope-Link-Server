@@ -109,4 +109,27 @@ router.get("/profile/:id/donation", async (req, res) => {
 });
 
 
+router.get("/profile/:id/connected-ngos", async (req, res) => {
+
+  const { id } = req.params;
+
+  try {
+    // Fetch user by ID and populate connectedNgo (which are ObjectIds) with NGO details
+    const volunteer = await Volunteer.findById(id)
+      .populate("connectedNgo", "ngoName registrationNumber contactNumber");  // Ensure the correct path here
+
+    // Check if the user exists
+    if (!volunteer) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    // Send back the populated connected NGOs
+    res.status(200).json({ connectedNgo: volunteer.connectedNgo });
+  } catch (err) {
+    console.error("Error retrieving connected NGOs:", err);
+    res.status(500).json({ error: "Error retrieving connected NGOs" });
+  }
+});
+
+
 module.exports = router;
