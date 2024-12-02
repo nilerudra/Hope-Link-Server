@@ -24,20 +24,18 @@ router.post("/send", async (req, res) => {
   }
 });
 
-router.get("/conversation/:sender/:receiver", async (req, res) => {
-  const { sender, receiver } = req.params;
+router.get("/conversation/:ngoId", async (req, res) => {
+  const { ngoId } = req.params;
 
   try {
-    // Find messages where user1 is the sender and user2 is the receiver or vice versa
+    // Find messages where receiver is ngoId
     const messages = await Message.find({
-      $or: [
-        { sender: sender, receiver: receiver },
-        { sender: receiver, receiver: sender },
-      ],
-    });
+      receiver: ngoId, // Fetch only messages where receiver matches ngoId
+    }).sort({ created_at: 1 }); // Sort by creation date
 
     res.status(200).json(messages);
   } catch (error) {
+    console.error("Error fetching messages:", error);
     res.status(500).json({ message: error.message });
   }
 });
