@@ -1,5 +1,8 @@
 const express = require('express');
 const Task = require('../models/assign-task');
+const Notification = require("../models/notification");
+const NGO = require("../models/ngo"); 
+const User = require("../models/users");
 const router = express.Router();
 
 // Route to create a new task
@@ -22,6 +25,22 @@ router.post('/', async (req, res) => {
 
     // Save the task to the database
     const savedTask = await newTask.save();
+
+    const ngo = await NGO.findById(ngoId).populate("volunteers"); // Ensure the "volunteers" field is populated
+    if (!ngo) {
+      return res.status(404).json({ message: "NGO not found" });
+    }
+
+    // Create notifications for each volunteer
+    const notifications = ngo.volunteers.map((volunteer) => ({
+      id: volunteer._id,
+      userName: volunteer.username,
+      message: ` "${description}" has been assigned.`,
+      isRead:false
+    }));
+
+    await Notification.insertMany(notifications);
+
 
     res.status(201).json({ message: 'Task created successfully!', task: savedTask });
   } catch (error) {
