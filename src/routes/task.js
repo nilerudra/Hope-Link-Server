@@ -35,7 +35,7 @@ router.post('/', async (req, res) => {
     const notifications = ngo.volunteers.map((volunteer) => ({
       id: volunteer._id,
       userName: volunteer.username,
-      message: ` "${description}" has been assigned.`,
+      message: ` "${description}" has been assigned to you.`,
       isRead:false
     }));
 
